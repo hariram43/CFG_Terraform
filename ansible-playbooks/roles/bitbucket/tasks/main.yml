@@ -1,0 +1,102 @@
+---
+
+- name: Git installation
+  yum: 
+    name: "git"
+    state: present
+    
+- name: Git installation
+  yum: 
+    name: "redhat-lsb"
+    state: present
+
+- name: download bitbucket
+  get_url:
+    url: "{{download_url}}" 
+    dest: "{{base_dir}}/"
+  register: bitbucket_download
+
+- name: bitbucket.tar.gz
+  unarchive:
+    src: "{{download_archive}}"
+    dest: "{{base_dir}}/"
+    remote_src: True
+  when: bitbucket_download.changed
+
+- name: rename file
+  command: mv "{{install_dir}}" "{{bitbucket_dir}}"
+  when: bitbucket_download.changed
+
+- name: create bitbucket group
+  group: name={{bitbucket_group}}
+  when: bitbucket_download.changed
+
+- name: create bitbucket user
+  user: name={{bitbucket_user}} group={{bitbucket_group}}
+  when: bitbucket_download.changed
+
+- name: Change file ownership, group and permissions
+  file:
+    path: "{{bitbucket_dir}}"
+    owner: "{{bitbucket_user}}"
+    group: "{{bitbucket_group}}"
+    recurse: yes
+
+- name: Create a symbolic link
+  file:
+    src: "{{bitbucket_dir}}"
+    dest: "{{bitbucket_dir_ln}}"
+    state: link
+
+- name: Change file ownership, group and permissions
+  file:
+    path: "{{bitbucket_home_dir}}"
+    owner: "{{bitbucket_user}}"
+    group: "{{bitbucket_group}}"
+    state: directory
+    mode: 0755
+
+- name: Change file ownership, group and permissions
+  file:
+    path: "{{bitbucket_home_dir}}/shared"
+    owner: "{{bitbucket_user}}"
+    group: "{{bitbucket_group}}"
+    state: directory
+    mode: 0755
+
+- name: Copy all bin config templates
+  template:
+    src: "{{ item }}"
+    dest: "{{ bitbucket_dir }}/bin/{{ item | basename | splitext | first }}"
+    owner: "{{ bitbucket_user }}"
+    group: "{{ bitbucket_group }}"
+    mode: 0755
+  with_fileglob:
+    - templates/bin/*
+
+- name: Copy Bitbucket properties
+  template:
+    src: "bitbucket.properties.j2"
+    dest: "/tmp/bitbucket.properties"
+    mode: 0755
+
+- name: Copy Bitbucket properties
+  copy:
+    src: "/tmp/bitbucket.properties"
+    dest: "{{ bitbucket_home_dir }}/shared/bitbucket.properties"
+    owner: "{{ bitbucket_user }}"
+    group: "{{ bitbucket_group }}"
+    mode: 0755
+    remote_src: yes
+
+- name: Bitbucket | Copy systemd template
+  template:
+    src: bitbucket.service.j2
+    dest: /etc/systemd/system/bitbucket.service
+    mode: 0755
+
+- name: Bitbucket | Register systemd service
+  systemd:
+    name: bitbucket.service
+    enabled: true
+    state: started

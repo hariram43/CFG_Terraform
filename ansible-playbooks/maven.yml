@@ -1,0 +1,10 @@
+---
+
+
+- name: Install maven
+  hosts: all
+  gather_facts: false
+  become: true
+  roles:
+    - maven
+

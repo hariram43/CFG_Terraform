@@ -1,0 +1,55 @@
+---
+# defaults file for atlassian-crowd
+
+atlassian_crowd_packages:
+  - {'name': 'python-lxml', 'state': 'present'}
+  
+atlassian_crowd_version: 3.0.2
+
+download_url: "{{ atlassian_crowd_baseurl }}/atlassian-crowd-{{ atlassian_crowd_version }}.tar.gz"
+download_tmp: "{{ atlassian_crowd_basedir }}/atlassian-crowd-{{ atlassian_crowd_version }}.tar.gz"
+atlassian_crowd_dir: "{{ atlassian_crowd_basedir }}/atlassian-crowd-{{ atlassian_crowd_version }}"
+    
+atlassian_crowd_baseurl: https://www.atlassian.com/software/crowd/downloads/binary/
+atlassian_crowd_basedir: /opt/atlassian
+atlassian_crowd_home: /opt/crowd_home
+
+atlassian_crowd_user: crowd
+atlassian_crowd_group: crowd
+
+atlassian_crowd_crowd_http_port: 8095
+
+# JVM minimal and maximum memory usage.
+crowd_jvm_minimum_memory: "1024m"
+crowd_jvm_maximum_memory: "1024m"
+
+# Proxy and context path setup.
+crowd_catalina_connector_proxyname: ~
+crowd_catalina_connector_proxyport: ~
+crowd_catalina_connector_scheme: "http"
+crowd_catalina_connector_secure: "false"
+crowd_catalina_context_path: "/"
+
+# Atlassian Support recommended JVM arguments.
+crowd_jvm_support_recommended_args: >-
+  -Datlassian.plugins.enable.wait=300
+  -XX:+UnlockExperimentalVMOptions
+  -XX:+UseCGroupMemoryLimitForHeap
+  -XX:MaxRAMFraction=1
+
+# Session timeout.
+crowd_session_timeout: "300"
+
+#  atlassian_crowd_server_xml:
+#    - xpath: /Server/Service/Connector
+#      ensure: present
+#      attribute: proxyPort
+#      value: 443
+#    - xpath: /Server/Service/Connector
+#      ensure: present
+#      attribute: scheme
+#      value: https
+#    - xpath: /Server/Service/Connector
+#     ensure: present
+#      attribute: proxyName
+#      value: crowd.example.com

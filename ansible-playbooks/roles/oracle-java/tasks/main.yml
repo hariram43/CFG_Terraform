@@ -1,0 +1,36 @@
+---
+
+# Ansible role to install Oracle Java 7
+
+  - name: Check If java is already installed or not
+    shell: "{{ java_home }}/bin/java -version 2>&1 | grep version | awk '{print $3}' | sed 's/\"//g'"
+    register: java_installed
+  
+  - name: Installed java version
+    debug: "msg={{java_installed.stdout}}"
+
+  - block:
+    - name: copy tar
+      copy: 
+        src: jre-8u221-linux-x64.tar.gz
+        dest: "{{java_archive}}"
+
+    - name: install Java8
+      command: "tar xvzf {{java_archive}} -C {{java_install}}"
+
+    - name: Fix ownership
+      file: state=directory path={{java_home}} owner=root group=root recurse=yes
+
+    - name: Make Java available for system
+      command: 'alternatives --install "/usr/bin/java" "java" "{{java_home}}/bin/java" 2000'
+
+    - name: Set/Configure JAVA_HOME in environment variables 
+      shell: "echo 'export JAVA_HOME={{java_home}}\n export PATH=$JAVA_HOME/bin:$PATH' > {{java_env_file}}"
+    
+    - name: Exports/Run java env file for make JAVA_HOME available globally
+      shell: "source {{java_env_file}}"
+
+    - name: Clean up
+      file: state=absent path={{java_archive}}
+    
+    when: java_installed.stdout == ""

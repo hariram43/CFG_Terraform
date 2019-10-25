@@ -1,0 +1,7 @@
+---
+
+- name: Install nexus
+  hosts: all
+  gather_facts: false
+  roles:
+   - nexus

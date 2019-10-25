@@ -1,0 +1,8 @@
+---
+#Role Java vars
+
+download_folder: /tmp
+java_archive: "{{download_folder}}/jdk-8u111-linux-x64.tar.gz"
+java_env_file: "/etc/profile.d/java.sh"
+java_home: "/usr/lib/java/jre1.8.0_221"
+java_install: "/usr/lib/java/"

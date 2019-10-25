@@ -1,0 +1,16 @@
+# {{ ansible_managed }}
+
+[Unit]
+Description=Atlassian Crowd
+After=syslog.target network.target
+
+[Service]
+Type=forking
+User={{ atlassian_crowd_user }}
+Group={{ atlassian_crowd_group }}
+ExecStart={{ atlassian_crowd_dir }}/start_crowd.sh
+ExecStop={{ atlassian_crowd_dir }}/stop_crowd.sh
+PIDFile={{ atlassian_crowd_dir }}/apache-tomcat/work/catalina.pid
+
+[Install]
+WantedBy=multi-user.target

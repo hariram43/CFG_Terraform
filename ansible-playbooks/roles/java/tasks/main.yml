@@ -1,0 +1,12 @@
+---
+
+- name: Java | Install Package
+  yum: 
+    name: "{{java_version}}" 
+    state: present
+
+- name: Set/Configure JAVA_HOME in environment variables 
+  shell: "echo 'export JAVA_HOME={{java_name}}\n export PATH=$JAVA_HOME/bin:$PATH' > {{java_env_file}}"
+    
+- name: Exports/Run java env file for make JAVA_HOME available globally
+  shell: "source {{java_env_file}}"

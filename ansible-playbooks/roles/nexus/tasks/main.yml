@@ -1,0 +1,63 @@
+---
+ 
+- name: download nexus.repo
+  get_url:
+    url: "{{ download_url }}"
+    dest: "{{ download_archive }}"
+  register: nexus_download
+
+- name: nexus.tar.gz
+  unarchive:
+    src: "{{ download_archive }}"
+    dest: "{{base_dir}}/"
+    remote_src: True
+  register: unarchive_var
+  when: nexus_download.changed
+
+- name: rename file
+  command: mv "{{install_dir}}" "{{nexus_dir}}"
+  sudo: true
+  when: nexus_download.changed
+
+- name: create nexus group
+  group: name={{nexus_group}}
+  sudo: true
+
+- name: create nexus user
+  user: name={{nexus_user}} group={{nexus_group}}
+  sudo: true
+
+- name: Change file ownership, group and permissions
+  file:
+    path: "{{nexus_dir}}"
+    owner: "{{nexus_user}}"
+    group: "{{nexus_group}}"
+    recurse: yes
+
+- name: Change file ownership, group and permissions
+  file:
+    path: "{{base_dir}}/sonatype-work/"
+    owner: "{{nexus_user}}"
+    group: "{{nexus_group}}"
+    recurse: yes
+
+- name: line insert
+  lineinfile:
+        path: "{{nexus_dir}}/bin/nexus.rc"
+        line: 'run_as_user="{{nexus_user}}"'
+        insertbefore: "{{run_user_insert_before}}"
+
+- name: create softlink
+  command: ln -s "{{nexus_dir}}/bin/nexus" /etc/init.d/nexus
+  sudo: true
+  when: nexus_download.changed
+
+- name: chkconfig to add nexus
+  command: chkconfig --add nexus
+
+- name: chkconfig nexus on
+  command: chkconfig nexus on
+
+- name: Starting Nexus
+  service: name=nexus state=started
+

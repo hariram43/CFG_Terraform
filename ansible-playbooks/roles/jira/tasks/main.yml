@@ -1,0 +1,72 @@
+---
+
+- name: Jira groups
+  group: name={{ jira_user_group }}
+
+- name: Default JIRA user and home
+  user:
+    name: "{{ jira_user }}"
+    group: "{{ jira_user_group }}"
+
+- name: Download the Source
+  get_url: 
+    url: "{{ jira_download_link }}/{{ jira_filename }}-{{ jira_version }}.tar.gz"
+    dest: "{{ jira_base_dir }}/{{ jira_filename }}-{{ jira_version }}.tar.gz"
+  register: jira_download
+
+- name: Extract the sources
+  unarchive: 
+    src: "{{ jira_base_dir }}/{{ jira_filename }}-{{ jira_version }}.tar.gz"
+    dest: "{{ jira_base_dir }}" 
+    owner: "{{ jira_user }}"
+    group: "{{ jira_user_group }}"
+    remote_src: yes
+
+- name: rename file
+  command: mv "{{jira_install_dir}}" "{{jira_dir}}"
+
+- name: Fix jira directory permissions
+  file:
+    path: "{{jira_dir}}"
+    owner: "{{ jira_user }}"
+    group: "{{ jira_user_group }}"
+    mode: 0755
+    recurse: yes
+
+- name: Create jira-home dir
+  file: 
+    path: "{{ jira_home_dir }}"
+    state: directory 
+    owner: "{{ jira_user }}"
+    group: "{{ jira_user_group }}"
+
+- name: Set the home dir inside the configs
+  template: 
+    src: jira-application.properties.j2 
+    dest: "{{ jira_dir }}/atlassian-jira/WEB-INF/classes/jira-application.properties"
+    owner: "{{ jira_user }}"
+    group: "{{ jira_user_group }}"
+    mode: 0755
+
+- name: Copy the service script
+  template: 
+    src: jira.service.j2 
+    dest: "/etc/systemd/system/jira.service"
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Copy the service script
+  template:
+    src: server.xml
+    dest: "{{ jira_dir }}/conf/server.xml"
+    owner: "{{ jira_user }}"
+    group: "{{ jira_user_group }}"
+    mode: 0755
+
+- name: enable jira service
+  service: 
+    name: jira
+    enabled: true 
+    state: started
+

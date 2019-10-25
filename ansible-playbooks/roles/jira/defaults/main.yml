@@ -1,0 +1,18 @@
+---
+# The Jira role by defaul installs Jira software
+
+jira_user_group: jira
+jira_user: jira
+
+jira_base_dir: "/opt"
+jira_home_dir: "{{jira_base_dir}}/jira_home"
+jira_install_dir: "{{jira_base_dir}}/atlassian-jira-software-{{ jira_version }}-standalone"
+jira_dir: "{{jira_base_dir}}/atlassian-jira"
+
+jira_download_link: "http://www.atlassian.com/software/jira/downloads/binary"
+jira_filename: "atlassian-jira-software"
+
+jira_version: "8.4.0"
+
+jira_java_home: "/usr/lib/jvm/jre"
+jira_http_port: 8080

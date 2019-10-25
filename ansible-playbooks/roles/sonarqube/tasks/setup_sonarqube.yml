@@ -1,0 +1,66 @@
+---
+
+- name: Install unzip
+  yum: 
+    name: "unzip" 
+    state: present
+
+- name: "Download SonarQube binaries"
+  get_url:
+    url: "{{ sonar_download_url }}"
+    dest: "/tmp/{{ sonar_archive }}"
+  retries: 5
+  delay: 10
+
+- name: "Expand SonarQube binaries"
+  unarchive:
+    src: "/tmp/{{ sonar_archive }}"
+    dest: "{{ sonar_install_directory }}"
+    owner: "{{ sonar_user }}"
+    group: "{{ sonar_group }}"
+    mode: 0755
+    remote_src: yes
+
+- name: "Ensure SonarQube as init script for service management"
+  file:
+    src: "{{ sonar_daemon_dir }}/sonar.sh"
+    dest: /etc/init.d/sonar
+    state: link
+
+
+- name: "Copy SonarQube systemd unit file into place (for systemd systems)."
+  template:
+    src: sonar.service.j2
+    dest: /etc/systemd/system/sonar.service
+    owner: root
+    group: root
+    mode: 0755
+
+- name: "Ensure SonarQube files permissions"
+  file:
+    path: "{{ sonar_install_directory }}"
+    state: directory
+    recurse: yes
+    owner: "{{ sonar_user }}"
+    group: "{{ sonar_group }}"
+    mode: 0755
+
+- name: "Ensure SonarQube configuration"
+  template:
+    src: "sonar.properties.j2"
+    dest: "{{ sonar_conf_dir }}/sonar.properties"
+    owner: "{{ sonar_user }}"
+    group: "{{ sonar_group }}"
+    mode: 0755
+
+- name: Replace run as user
+  replace:
+    path: "{{ sonar_daemon_dir }}/sonar.sh"
+    regexp: '^#RUN_AS_USER='
+    replace: "RUN_AS_USER={{ sonar_user }}"
+
+- name: "Ensure SonarQube is running and set to start on boot."
+  service:
+    name: sonar
+    state: started
+    enabled: yes

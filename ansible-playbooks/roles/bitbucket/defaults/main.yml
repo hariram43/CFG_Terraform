@@ -1,0 +1,29 @@
+---
+
+
+
+version: "6.6.1"
+base_dir: "/opt"
+
+download_url: "https://downloads.atlassian.com/software/stash/downloads/atlassian-bitbucket-{{ version }}.tar.gz"
+download_file: "atlassian-bitbucket-{{ version }}.tar.gz"
+download_path: "{{base_dir}}"
+download_archive: "{{base_dir}}/{{download_file}}"
+
+bitbucket_user: "bitbucket"
+bitbucket_group: "bitbucket"
+
+install_dir: "{{base_dir}}/atlassian-bitbucket-{{ version }}"
+bitbucket_dir: "{{base_dir}}/atlassian-bitbucket"
+bitbucket_dir_ln: "{{base_dir}}/atlassian-bitbucket-latest"
+
+bitbucket_home_dir: "{{base_dir}}/bitbucket_home"
+
+java_version: "jre-1.8.0-openjdk"
+
+bitbucket_java_home: '"/usr/lib/jvm/jre"'
+bitbucket_jvm_min_memory: 512m
+bitbucket_jvm_max_memory: 1024m
+
+bitbucket_port: 7990
+bitbucket_jmx_enabled: false

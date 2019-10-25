@@ -1,0 +1,23 @@
+---
+
+base_version: 3
+version: "{{base_version}}.18.1-01"
+base_dir: "/opt"
+
+download_url: "http://download.sonatype.com/nexus/{{base_version}}/nexus-{{ version }}-unix.tar.gz"
+download_file: "nexus-{{ version }}-unix.tar.gz"
+download_path: "{{base_dir}}"
+download_archive: "{{base_dir}}/{{download_file}}"
+
+
+install_dir: "{{base_dir}}/nexus-{{ version }}"
+nexus_dir: "{{base_dir}}/nexus{{base_version}}"
+
+
+nexus_user: "nexus"
+nexus_group: "nexus"
+
+run_user_insert_before: "BOF"
+
+
+
